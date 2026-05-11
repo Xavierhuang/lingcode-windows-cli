@@ -1,6 +1,6 @@
 {
   "name": "lingcode-cli",
-  "version": "3.14.4",
+  "version": "3.14.5",
   "description": "All-in-One Assistant for Claude Code, Codex & Gemini CLI",
   "type": "module",
   "scripts": {
