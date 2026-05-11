@@ -1,6 +1,6 @@
 use serde_json::json;
 
-use cc_switch_lib::{
+use lingcode_cli_lib::{
     get_claude_settings_path, read_json_file, write_codex_live_atomic, AppError, AppType, McpApps,
     McpServer, MultiAppConfig, Provider, ProviderMeta, ProviderService,
 };
@@ -178,7 +178,7 @@ command = "say"
         .expect("switch provider should succeed");
 
     let auth_value: serde_json::Value =
-        read_json_file(&cc_switch_lib::get_codex_auth_path()).expect("read auth.json");
+        read_json_file(&lingcode_cli_lib::get_codex_auth_path()).expect("read auth.json");
     assert_eq!(
         auth_value.get("OPENAI_API_KEY").and_then(|v| v.as_str()),
         Some("fresh-key"),
@@ -186,7 +186,7 @@ command = "say"
     );
 
     let config_text =
-        std::fs::read_to_string(cc_switch_lib::get_codex_config_path()).expect("read config.toml");
+        std::fs::read_to_string(lingcode_cli_lib::get_codex_config_path()).expect("read config.toml");
     assert!(
         config_text.contains("mcp_servers.echo-server"),
         "config.toml should contain synced MCP servers"
@@ -304,7 +304,7 @@ requires_openai_auth = true
         .expect("switch provider should succeed");
 
     let config_text =
-        std::fs::read_to_string(cc_switch_lib::get_codex_config_path()).expect("read config.toml");
+        std::fs::read_to_string(lingcode_cli_lib::get_codex_config_path()).expect("read config.toml");
     let parsed: toml::Value = toml::from_str(&config_text).expect("parse config.toml");
 
     assert_eq!(
