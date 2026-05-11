@@ -13,22 +13,19 @@ pub async fn run_agent_bridge(
     cwd: Option<String>,
 ) -> Result<String, String> {
     // 1. Resolve provider
-    let _provider_service = ProviderService;
     let app_type = AppType::Claude; // Default to Claude for bridge
 
     let pid = match provider_id {
         Some(id) => id,
         None => {
             // Get active provider for Claude
-            let global_config = state
-                .get_global_config()
-                .await
-                .map_err(|e| format!("Failed to get global config: {e}"))?;
-            global_config
-                .active_providers
-                .get(&app_type.to_string())
-                .cloned()
-                .ok_or_else(|| "No active provider for Claude".to_string())?
+            let current_id = ProviderService::current(state.inner(), app_type.clone())
+                .map_err(|e| format!("Failed to get current provider: {e}"))?;
+
+            if current_id.is_empty() {
+                return Err("No active provider for Claude".to_string());
+            }
+            current_id
         }
     };
 
@@ -40,7 +37,6 @@ pub async fn run_agent_bridge(
         .ok_or_else(|| format!("Provider {} not found", pid))?;
 
     // 2. Extract environment variables from provider config
-    // (This logic should ideally be shared with open_provider_terminal)
     let mut env_vars = HashMap::new();
     if let Some(obj) = provider.settings_config.as_object() {
         if let Some(env) = obj.get("env").and_then(|v| v.as_object()) {
