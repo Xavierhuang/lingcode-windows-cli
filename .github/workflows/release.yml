@@ -40,20 +40,20 @@ jobs:
         run: |
           New-Item -ItemType Directory -Force -Path release-assets
           $VERSION = $env:GITHUB_REF_NAME
-          
-          # 1. MSI Installer
-          $msi = Get-ChildItem -Path 'src-tauri/target/release/bundle/msi' -Filter *.msi | Select-Object -First 1
-          if ($msi) {
-            Copy-Item $msi.FullName "release-assets/LingCode-CLI-$VERSION-Windows-Installer.msi"
+
+          # 1. NSIS Installer (.exe). Tauri writes it under bundle/nsis/.
+          $nsis = Get-ChildItem -Path 'src-tauri/target/release/bundle/nsis' -Filter *.exe | Select-Object -First 1
+          if ($nsis) {
+            Copy-Item $nsis.FullName "release-assets/LingCode-CLI-$VERSION-Windows-Setup.exe"
           }
 
-          # 2. Portable EXE
+          # 2. Portable EXE — the raw cargo output, no installer required.
           $exe = "src-tauri/target/release/lingcode-cli.exe"
           if (Test-Path $exe) {
             $portableDir = "release-assets/LingCode-CLI-Portable"
             New-Item -ItemType Directory -Force -Path $portableDir
             Copy-Item $exe "$portableDir/lingcode.exe"
-            # Add a marker for portable mode
+            # Marker file consumed by the app at runtime to enable portable mode.
             "# LingCode CLI portable" | Out-File -FilePath "$portableDir/portable.ini" -Encoding utf8
             Compress-Archive -Path "$portableDir/*" -DestinationPath "release-assets/LingCode-CLI-$VERSION-Windows-Portable.zip" -Force
           }
